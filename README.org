@@ -1,0 +1,14 @@
+#+title: Menu
+
+#+begin_quote
+Lightweight macOS menu tool with app launcher mode and prerendering support
+#+end_quote
+
+#+begin_src 
+Usage: Menu [--drun] [--server]
+  --drun     App launcher mode (scan app directories)
+  --server   Use/spawn background server for instant startup
+  --reload   Reload app list on running server
+  --stop     Stop the background server
+  (default)  Read lines from stdin, show menu, print selection
+#+end_src
