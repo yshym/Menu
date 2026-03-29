@@ -75,7 +75,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
         panel.level = .floating
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
-        panel.isMovableByWindowBackground = true
+        panel.isMovable = false;
         panel.hidesOnDeactivate = true
         panel.backgroundColor = Theme.hex(Theme.colorBG)
 
