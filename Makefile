@@ -5,12 +5,12 @@ SWIFTC = swiftc
 
 ifndef NIX_BUILD_TOP
 	export DEVELOPER_DIR=/Library/Developer/CommandLineTools
-	export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk
+	SDK_FLAGS = -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 	SWIFTC = /usr/bin/swiftc
 endif
 
 $(OUT): $(SRCS)
-	$(SWIFTC) -O -framework Cocoa \
+	$(SWIFTC) -O $(SDK_FLAGS) -framework Cocoa \
 		-o $(OUT) $(SRCS)
 
 clean:

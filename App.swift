@@ -1,5 +1,12 @@
 import Cocoa
 
+class OverlayScrollView: NSScrollView {
+    override var scrollerStyle: NSScroller.Style {
+        get { .overlay }
+        set { super.scrollerStyle = .overlay }
+    }
+}
+
 enum MenuMode { case stdin, drun }
 
 class AppDelegate: NSObject, NSApplicationDelegate,
@@ -8,7 +15,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     var panel: NSPanel!
     var searchField: NSTextField!
     var tableView: NSTableView!
-    var scrollView: NSScrollView!
+    var scrollView: OverlayScrollView!
     var items: [String] = []
     var filteredItems: [String] = []
     var scoredItems: [ScoredItem]?
@@ -120,11 +127,10 @@ class AppDelegate: NSObject, NSApplicationDelegate,
         }
 
         // Scroll view + table view
-        scrollView = NSScrollView(frame: NSMakeRect(12, bottomPadding, panelWidth - 24, rowTotal))
+        scrollView = OverlayScrollView(frame: NSMakeRect(12, bottomPadding, panelWidth - 24, rowTotal))
         scrollView.automaticallyAdjustsContentInsets = false
         scrollView.contentInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         scrollView.hasVerticalScroller = true
-        scrollView.scrollerStyle = .overlay
         scrollView.drawsBackground = false
         scrollView.borderType = .noBorder
 
