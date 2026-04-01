@@ -1,5 +1,4 @@
-SRCS = main.swift Protocol.swift Theme.swift Fuzzy.swift Scan.swift \
-       RowView.swift App.swift Client.swift Server.swift
+SRCS = $(wildcard Sources/*.swift)
 OUT = Menu
 SWIFTC = swiftc
 
