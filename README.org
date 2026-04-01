@@ -12,3 +12,5 @@ Usage: Menu [--drun] [--server]
   --stop     Stop the background server
   (default)  Read lines from stdin, show menu, print selection
 #+end_src
+
+[[./images/Menu1.png]]
