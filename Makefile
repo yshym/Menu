@@ -9,6 +9,10 @@ ifndef NIX_BUILD_TOP
 endif
 
 $(OUT): $(SRCS)
+	$(SWIFTC) -Onone -g $(SDK_FLAGS) -framework Cocoa \
+		-o $(OUT) $(SRCS)
+
+release: $(SRCS)
 	$(SWIFTC) -O $(SDK_FLAGS) -framework Cocoa \
 		-o $(OUT) $(SRCS)
 

@@ -1,24 +1,58 @@
 import Cocoa
 
-enum Theme {
+struct Theme {
     enum InputType {
         case bezeled
         case simple
     }
 
-    static let colorBG      = 0x282A36
-    static let colorFG      = 0xF8F8F2
-    static let colorSel     = 0x44475A
-    static let colorAccent  = 0xBD93F9
+    var colorBG: Int
+    var colorFG: Int
+    var colorSel: Int
+    var colorAccent: Int
 
-    static let fontSizeSearch: CGFloat = 18
-    static let fontSizeList: CGFloat = 14
+    var fontSizeSearch: CGFloat = 18
+    var fontSizeList: CGFloat = 14
 
-    static let contentPadding: CGFloat = 8
+    var contentPadding: CGFloat = 8
 
-    static let lineCount = 10
+    var lineCount = 10
 
-    static let inputType: InputType = .simple
+    var inputType: InputType = .simple
+
+    init() {
+        let dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        if dark {
+            colorBG     = 0x1E1E1E
+            colorFG     = 0xF0F0F0
+            colorSel    = 0x3A3A3A
+            colorAccent = 0x007AFF
+        } else {
+            colorBG     = 0xF5F5F5
+            colorFG     = 0x1E1E1E
+            colorSel    = 0xD0D0D0
+            colorAccent = 0x007AFF
+        }
+    }
+
+    init(from dict: [String: TOML.Value]) {
+        self.init()
+        if case .int(let v) = dict["colorBG"] { colorBG = v }
+        if case .int(let v) = dict["colorFG"] { colorFG = v }
+        if case .int(let v) = dict["colorSel"] { colorSel = v }
+        if case .int(let v) = dict["colorAccent"] { colorAccent = v }
+        if case .int(let v) = dict["fontSizeSearch"] { fontSizeSearch = CGFloat(v) }
+        if case .int(let v) = dict["fontSizeList"] { fontSizeList = CGFloat(v) }
+        if case .int(let v) = dict["contentPadding"] { contentPadding = CGFloat(v) }
+        if case .int(let v) = dict["lineCount"] { lineCount = v }
+        if case .string(let v) = dict["inputType"] {
+            switch v {
+            case "bezeled": inputType = .bezeled
+            case "simple": inputType = .simple
+            default: ()
+            }
+        }
+    }
 
     static func hex(_ value: Int) -> NSColor {
         NSColor(

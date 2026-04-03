@@ -12,6 +12,7 @@ enum MenuMode { case stdin, drun }
 class AppDelegate: NSObject, NSApplicationDelegate,
     NSTableViewDataSource, NSTableViewDelegate, NSTextFieldDelegate {
 
+    var theme: Theme = Theme()
     var panel: NSPanel!
     var searchField: NSTextField!
     var tableView: NSTableView!
@@ -28,6 +29,9 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     // MARK: - Initialization
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let config = Config.parse("~/.config/Menu/config.toml") {
+            theme = config.theme;
+        }
         setupPanel()
         if !serverMode {
             filteredItems = items
@@ -55,14 +59,14 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     func setupPanel() {
         let panelWidth: CGFloat = 600
 
-        // Derive panel height from Theme.lineCount
+        // Derive panel height from theme.lineCount
         let rowHeight: CGFloat = 28
         let intercellSpacing: CGFloat = 2
         let topPadding: CGFloat = 12
         let searchFieldHeight: CGFloat = 32
         let searchTableGap: CGFloat = 12
         let bottomPadding: CGFloat = 12
-        let rowTotal = CGFloat(Theme.lineCount) * (rowHeight + intercellSpacing)
+        let rowTotal = CGFloat(theme.lineCount) * (rowHeight + intercellSpacing)
         let panelHeight = topPadding + searchFieldHeight + searchTableGap + rowTotal + bottomPadding
 
         panel = NSPanel(
@@ -77,17 +81,17 @@ class AppDelegate: NSObject, NSApplicationDelegate,
         panel.titleVisibility = .hidden
         panel.isMovable = false;
         panel.hidesOnDeactivate = true
-        panel.backgroundColor = Theme.hex(Theme.colorBG)
+        panel.backgroundColor = Theme.hex(theme.colorBG)
 
         let contentView = panel.contentView!
 
         // Search field
-        switch Theme.inputType {
+        switch theme.inputType {
         case .bezeled:
             searchField = NSTextField(frame: NSMakeRect(12, panelHeight - topPadding - searchFieldHeight, panelWidth - 24, searchFieldHeight))
-            searchField.font = .systemFont(ofSize: Theme.fontSizeSearch)
-            searchField.textColor = Theme.hex(Theme.colorFG)
-            searchField.backgroundColor = Theme.hex(Theme.colorSel)
+            searchField.font = .systemFont(ofSize: theme.fontSizeSearch)
+            searchField.textColor = Theme.hex(theme.colorFG)
+            searchField.backgroundColor = Theme.hex(theme.colorSel)
             searchField.focusRingType = .none
             searchField.isBordered = false
             searchField.isBezeled = true
@@ -100,23 +104,23 @@ class AppDelegate: NSObject, NSApplicationDelegate,
             let searchY = panelHeight - topPadding - searchFieldHeight
             let searchH = searchFieldHeight
             let tableInternalOffset: CGFloat = 12
-            let inputX = 12 + Theme.contentPadding + tableInternalOffset
+            let inputX = 12 + theme.contentPadding + tableInternalOffset
             let searchContainer = NSView(frame: NSMakeRect(0, searchY, panelWidth, searchH))
             searchContainer.wantsLayer = true
-            searchContainer.layer?.backgroundColor = Theme.hex(Theme.colorBG).cgColor
+            searchContainer.layer?.backgroundColor = Theme.hex(theme.colorBG).cgColor
             contentView.addSubview(searchContainer)
 
             let prompt = NSTextField(labelWithString: ">")
-            prompt.font = .systemFont(ofSize: Theme.fontSizeSearch)
-            prompt.textColor = Theme.hex(Theme.colorSel)
+            prompt.font = .systemFont(ofSize: theme.fontSizeSearch)
+            prompt.textColor = Theme.hex(theme.colorSel)
             prompt.frame = NSMakeRect(0, 0, inputX, searchH)
             prompt.alignment = .center
             prompt.drawsBackground = false
             searchContainer.addSubview(prompt)
 
             searchField = NSTextField(frame: NSMakeRect(inputX, 0, panelWidth - inputX - 12, searchH))
-            searchField.font = .systemFont(ofSize: Theme.fontSizeSearch)
-            searchField.textColor = Theme.hex(Theme.colorFG)
+            searchField.font = .systemFont(ofSize: theme.fontSizeSearch)
+            searchField.textColor = Theme.hex(theme.colorFG)
             searchField.focusRingType = .none
             searchField.isBordered = false
             searchField.isBezeled = false
@@ -355,14 +359,14 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
         let text = filteredItems[row]
         let attrStr = NSMutableAttributedString(string: text, attributes: [
-            .foregroundColor: Theme.hex(Theme.colorFG),
-            .font: NSFont.systemFont(ofSize: Theme.fontSizeList)
+            .foregroundColor: Theme.hex(theme.colorFG),
+            .font: NSFont.systemFont(ofSize: theme.fontSizeList)
         ])
 
         if let scored = scoredItems, row < scored.count {
             for idx in scored[row].matchIndices {
                 let range = NSRange(location: idx, length: 1)
-                attrStr.addAttribute(.foregroundColor, value: Theme.hex(Theme.colorAccent), range: range)
+                attrStr.addAttribute(.foregroundColor, value: Theme.hex(theme.colorAccent), range: range)
                 attrStr.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
             }
         }
@@ -374,12 +378,12 @@ class AppDelegate: NSObject, NSApplicationDelegate,
         cell.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(cell)
         cell.centerYAnchor.constraint(equalTo: container.centerYAnchor).isActive = true
-        cell.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: Theme.contentPadding + cellLeftPadding).isActive = true
-        cell.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -Theme.contentPadding).isActive = true
+        cell.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: theme.contentPadding + cellLeftPadding).isActive = true
+        cell.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -theme.contentPadding).isActive = true
         return container
     }
 
     func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
-        MenuRowView()
+        MenuRowView(theme: theme)
     }
 }
