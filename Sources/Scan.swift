@@ -24,5 +24,21 @@ func scanApps() -> (items: [String], paths: [String: String]) {
             }
         }
     }
+    // Steam apps (nested one level deeper)
+    let steamDir = NSHomeDirectory() + "/Library/Application Support/Steam/steamapps/common"
+    if let games = try? fm.contentsOfDirectory(atPath: steamDir) {
+        for game in games {
+            let gameDir = "\(steamDir)/\(game)"
+            guard let contents = try? fm.contentsOfDirectory(atPath: gameDir) else { continue }
+            for entry in contents where entry.hasSuffix(".app") {
+                let name = (entry as NSString).deletingPathExtension
+                if paths[name] == nil {
+                    paths[name] = "\(gameDir)/\(entry)"
+                    items.append(name)
+                }
+            }
+        }
+    }
+
     return (items.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }, paths)
 }
