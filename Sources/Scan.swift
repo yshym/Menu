@@ -1,12 +1,19 @@
 import Foundation
 
-private let appDirs = [
+let appDirs = [
     "/System/Applications",
     "/System/Applications/Utilities",
     "/System/Library/CoreServices",
     "/Applications",
     "/Applications/Utilities",
 ]
+
+func appWatchDirs() -> [String] {
+    appDirs + [
+        NSHomeDirectory() + "/Applications/Nix",
+        NSHomeDirectory() + "/Library/Application Support/Steam/steamapps/common",
+    ]
+}
 
 func scanApps() -> (items: [String], paths: [String: String]) {
     var items: [String] = []

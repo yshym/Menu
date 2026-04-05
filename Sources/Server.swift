@@ -65,6 +65,25 @@ func serverRun() -> Never {
     delegate.reloadApps()
     nsApp.delegate = delegate
 
+    // Watch app directories for changes
+    var reloadWork: DispatchWorkItem?
+    var fsSources: [DispatchSourceFileSystemObject] = []
+    for dir in appWatchDirs() {
+        let fd = open(dir, O_EVTONLY)
+        guard fd >= 0 else { continue }
+        let fsSource = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: fd, eventMask: .write, queue: .main
+        )
+        fsSource.setEventHandler {
+            reloadWork?.cancel()
+            reloadWork = DispatchWorkItem { delegate.reloadApps() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: reloadWork!)
+        }
+        fsSource.setCancelHandler { close(fd) }
+        fsSource.resume()
+        fsSources.append(fsSource)
+    }
+
     // Accept connections via GCD event source (runs on main queue)
     let source = DispatchSource.makeReadSource(fileDescriptor: serverFd, queue: .main)
     source.setEventHandler {
@@ -98,8 +117,8 @@ func serverRun() -> Never {
     }
     source.resume()
 
-    // Keep source alive for the lifetime of the process
-    withExtendedLifetime(source) {
+    // Keep sources alive for the lifetime of the process
+    withExtendedLifetime((source, fsSources)) {
         // Run the main event loop (never returns)
         nsApp.run()
     }
