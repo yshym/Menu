@@ -10,15 +10,15 @@ let appDirs = [
 
 func appWatchDirs() -> [String] {
     appDirs + [
+        NSHomeDirectory() + "/Applications",
         NSHomeDirectory() + "/Applications/Nix",
-        NSHomeDirectory() + "/Library/Application Support/Steam/steamapps/common",
     ]
 }
 
 func scanApps() -> (items: [String], paths: [String: String]) {
     var items: [String] = []
     var paths: [String: String] = [:]
-    let dirs = appDirs + [NSHomeDirectory() + "/Applications/Nix"]
+    let dirs = appWatchDirs()
     let fm = FileManager.default
 
     for dir in dirs {
@@ -28,21 +28,6 @@ func scanApps() -> (items: [String], paths: [String: String]) {
             if paths[name] == nil {
                 paths[name] = "\(dir)/\(entry)"
                 items.append(name)
-            }
-        }
-    }
-    // Steam apps (nested one level deeper)
-    let steamDir = NSHomeDirectory() + "/Library/Application Support/Steam/steamapps/common"
-    if let games = try? fm.contentsOfDirectory(atPath: steamDir) {
-        for game in games {
-            let gameDir = "\(steamDir)/\(game)"
-            guard let contents = try? fm.contentsOfDirectory(atPath: gameDir) else { continue }
-            for entry in contents where entry.hasSuffix(".app") {
-                let name = (entry as NSString).deletingPathExtension
-                if paths[name] == nil {
-                    paths[name] = "\(gameDir)/\(entry)"
-                    items.append(name)
-                }
             }
         }
     }
